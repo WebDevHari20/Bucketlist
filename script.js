@@ -345,6 +345,7 @@ if (typewriterContainer) {
 // ─── Reopen Message Feature ──────────────────────────────────────
 if (reopenIntroBtn) {
     reopenIntroBtn.addEventListener('click', () => {
+        if (fabAdd) fabAdd.classList.add('hidden');
         bucketSection.style.transition = 'opacity 0.5s ease';
         bucketSection.style.opacity = '0';
 
@@ -367,6 +368,7 @@ exploreBtn.addEventListener('click', async () => {
     setTimeout(async () => {
         questionSection.classList.add('hidden');
         bucketSection.classList.remove('hidden');
+        if (fabAdd) fabAdd.classList.remove('hidden');
 
         // Smooth entrance
         bucketSection.style.opacity = '0';
@@ -375,6 +377,11 @@ exploreBtn.addEventListener('click', async () => {
             bucketSection.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
             bucketSection.style.opacity = '1';
             bucketSection.style.transform = 'translateY(0)';
+
+            // Clear transform after animation completes so it doesn't affect any fixed children
+            setTimeout(() => {
+                bucketSection.style.transform = '';
+            }, 850);
         });
 
         // Load data and render
