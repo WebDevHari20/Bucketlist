@@ -32,9 +32,10 @@
     <section class="question-section hidden" id="questionSection">
         <div class="sparkle-overlay"></div>
         <div class="question-content">
-            <div class="typewriter-container">
+            <div class="typewriter-container" id="typewriterContainer" title="Click to skip">
                 <h1 class="question-text" id="questionText"></h1>
                 <span class="cursor" id="cursor">|</span>
+                <span class="skip-hint" id="skipHint">Tap to skip</span>
             </div>
             <div class="answer-reveal hidden" id="answerReveal">
                 <div class="divider-heart">
@@ -60,6 +61,7 @@
         <!-- Progress Header -->
         <header class="bucket-header">
             <div class="header-content">
+                <button class="intro-reopen-btn" id="reopenIntroBtn" title="Reopen romantic message">💌 Reopen Message</button>
                 <h2 class="bucket-title">
                     <span class="title-icon">📋</span>
                     Our Love Bucket List
@@ -164,6 +166,17 @@
                         <button type="button" class="emoji-option" data-emoji="🔮">🔮</button>
                         <button type="button" class="emoji-option" data-emoji="✨">✨</button>
                     </div>
+                </div>
+                <div class="form-group">
+                    <label for="wishCategory">Category</label>
+                    <select id="wishCategory" class="wish-select">
+                        <option value="her-wish">💭 Her Wish (Special)</option>
+                        <option value="romance">💕 Romance</option>
+                        <option value="adventure">🌍 Adventure</option>
+                        <option value="chill">🍿 Chill</option>
+                        <option value="food">🍽️ Foodie</option>
+                        <option value="spicy">🔥 Spicy</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="wishTitle">What's the idea?</label>

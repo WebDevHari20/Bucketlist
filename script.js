@@ -2,7 +2,7 @@
    💕 Our Love Bucket List — JavaScript
    ═══════════════════════════════════════════════════════════════ */
 
-// ─── Bucket List Data ────────────────────────────────────────────
+// ─── Bucket List Data (26 Romantic Adventures) ───────────────────
 const bucketListItems = [
     {
         id: 1,
@@ -215,7 +215,10 @@ const bucketListItems = [
 ];
 
 // ─── State ───────────────────────────────────────────────────────
-let completedItems = new Set(JSON.parse(localStorage.getItem('bucketCompleted') || '[]'));
+// Keep IDs as strings in Set for reliable comparisons (numbers & string IDs)
+let completedItems = new Set(
+    (JSON.parse(localStorage.getItem('bucketCompleted') || '[]')).map(id => String(id))
+);
 let currentFilter = 'all';
 let herWishes = [];
 let selectedEmoji = '💭';
@@ -225,8 +228,10 @@ const heartsBg = document.getElementById('heartsBg');
 const introSection = document.getElementById('introSection');
 const envelope = document.getElementById('envelope');
 const questionSection = document.getElementById('questionSection');
+const typewriterContainer = document.getElementById('typewriterContainer');
 const questionText = document.getElementById('questionText');
 const cursor = document.getElementById('cursor');
+const skipHint = document.getElementById('skipHint');
 const answerReveal = document.getElementById('answerReveal');
 const exploreBtn = document.getElementById('exploreBtn');
 const bucketSection = document.getElementById('bucketSection');
@@ -236,6 +241,7 @@ const completedCount = document.getElementById('completedCount');
 const totalCount = document.getElementById('totalCount');
 const confettiCanvas = document.getElementById('confettiCanvas');
 const filterBtns = document.querySelectorAll('.filter-btn');
+const herWishesSection = document.getElementById('herWishesSection');
 const herWishesGrid = document.getElementById('herWishesGrid');
 const wishesEmpty = document.getElementById('wishesEmpty');
 const fabAdd = document.getElementById('fabAdd');
@@ -244,13 +250,15 @@ const modalClose = document.getElementById('modalClose');
 const wishForm = document.getElementById('wishForm');
 const wishTitle = document.getElementById('wishTitle');
 const wishDescription = document.getElementById('wishDescription');
+const wishCategory = document.getElementById('wishCategory');
 const charCount = document.getElementById('charCount');
 const emojiPicker = document.getElementById('emojiPicker');
+const reopenIntroBtn = document.getElementById('reopenIntroBtn');
 
 // ─── Floating Hearts ────────────────────────────────────────────
 function createFloatingHearts() {
     const hearts = ['💕', '💗', '💖', '💝', '♥', '💘', '✨', '🌸'];
-    
+
     setInterval(() => {
         const heart = document.createElement('div');
         heart.classList.add('floating-heart');
@@ -269,16 +277,16 @@ function createFloatingHearts() {
 let envelopeClicked = false;
 
 envelope.addEventListener('click', () => {
-    if (envelopeClicked) return; // prevent double click
+    if (envelopeClicked) return;
     envelopeClicked = true;
 
     envelope.classList.add('opened');
-    
+
     setTimeout(() => {
         introSection.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
         introSection.style.opacity = '0';
         introSection.style.transform = 'scale(0.95)';
-        
+
         setTimeout(() => {
             introSection.classList.add('hidden');
             questionSection.classList.remove('hidden');
@@ -287,46 +295,79 @@ envelope.addEventListener('click', () => {
     }, 1200);
 });
 
-// ─── Typewriter Effect ──────────────────────────────────────────
+// ─── Typewriter Effect with Instant Skip ─────────────────────────
 let typewriterStarted = false;
+let typewriterDone = false;
+let typewriterTimeout = null;
+const fullQuestion = "Do you have wishes that aren't being fulfilled right now?";
+
+function finishTypewriter() {
+    if (typewriterDone) return;
+    typewriterDone = true;
+    if (typewriterTimeout) clearTimeout(typewriterTimeout);
+    questionText.textContent = fullQuestion;
+    cursor.style.display = 'none';
+    if (skipHint) skipHint.style.display = 'none';
+    answerReveal.classList.remove('hidden');
+}
 
 function startTypewriter() {
-    if (typewriterStarted) return; // extra safety guard
+    if (typewriterStarted) return;
     typewriterStarted = true;
 
-    const text = "Do you have wishes that aren't being fulfilled right now?";
     let i = 0;
-    questionText.textContent = ''; // clear any previous text
-    
+    questionText.textContent = '';
+
     function type() {
-        if (i < text.length) {
-            questionText.textContent = text.substring(0, i + 1);
+        if (typewriterDone) return;
+        if (i < fullQuestion.length) {
+            questionText.textContent = fullQuestion.substring(0, i + 1);
             i++;
-            setTimeout(type, 55 + Math.random() * 40);
+            typewriterTimeout = setTimeout(type, 50 + Math.random() * 35);
         } else {
-            // Typing done — show answer after a pause
+            typewriterDone = true;
             cursor.style.display = 'none';
+            if (skipHint) skipHint.style.display = 'none';
             setTimeout(() => {
                 answerReveal.classList.remove('hidden');
-            }, 800);
+            }, 600);
         }
     }
-    
-    setTimeout(type, 600);
+
+    typewriterTimeout = setTimeout(type, 500);
+}
+
+// Click to skip typewriter
+if (typewriterContainer) {
+    typewriterContainer.addEventListener('click', finishTypewriter);
+}
+
+// ─── Reopen Message Feature ──────────────────────────────────────
+if (reopenIntroBtn) {
+    reopenIntroBtn.addEventListener('click', () => {
+        bucketSection.style.transition = 'opacity 0.5s ease';
+        bucketSection.style.opacity = '0';
+
+        setTimeout(() => {
+            bucketSection.classList.add('hidden');
+            questionSection.classList.remove('hidden');
+            questionSection.style.opacity = '1';
+            questionSection.style.transform = 'translateY(0)';
+            finishTypewriter();
+        }, 500);
+    });
 }
 
 // ─── Explore Button ──────────────────────────────────────────────
-exploreBtn.addEventListener('click', () => {
+exploreBtn.addEventListener('click', async () => {
     questionSection.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
     questionSection.style.opacity = '0';
     questionSection.style.transform = 'translateY(-30px)';
-    
-    setTimeout(() => {
+
+    setTimeout(async () => {
         questionSection.classList.add('hidden');
         bucketSection.classList.remove('hidden');
-        renderBucketList();
-        updateProgress();
-        
+
         // Smooth entrance
         bucketSection.style.opacity = '0';
         bucketSection.style.transform = 'translateY(20px)';
@@ -335,47 +376,64 @@ exploreBtn.addEventListener('click', () => {
             bucketSection.style.opacity = '1';
             bucketSection.style.transform = 'translateY(0)';
         });
+
+        // Load data and render
+        await Promise.all([loadCompletedItems(), loadHerWishes()]);
+        renderAllContent(currentFilter);
+        updateProgress();
     }, 800);
 });
 
-// ─── Render Bucket List ──────────────────────────────────────────
-function renderBucketList(filter = 'all') {
-    bucketGrid.innerHTML = '';
-    
-    const items = filter === 'all'
-        ? bucketListItems
-        : bucketListItems.filter(item => item.category === filter);
-    
-    items.forEach((item, index) => {
-        const card = document.createElement('div');
-        card.className = `bucket-card ${completedItems.has(item.id) ? 'completed' : ''}`;
-        card.style.setProperty('--card-accent', item.accent);
-        card.style.animationDelay = `${index * 0.05}s`;
-        card.dataset.id = item.id;
-        
-        card.innerHTML = `
-            <div class="card-number">${String(item.id).padStart(2, '0')}</div>
-            <span class="card-emoji">${item.emoji}</span>
-            <span class="card-tag ${item.category}">${getCategoryLabel(item.category)}</span>
-            <h3 class="card-title">${item.title}</h3>
-            <p class="card-description">${item.description}</p>
-            <div class="card-checkbox">
-                <div class="checkbox-custom">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20 6L9 17l-5-5"/>
-                    </svg>
-                </div>
-                <span class="checkbox-label">${completedItems.has(item.id) ? 'We did this! 🎉' : 'Mark as done'}</span>
-            </div>
-        `;
-        
-        card.addEventListener('click', () => toggleComplete(item.id, card));
-        bucketGrid.appendChild(card);
-    });
-    
-    totalCount.textContent = bucketListItems.length;
+// ─── Data Loading & Backend Sync ─────────────────────────────────
+async function loadCompletedItems() {
+    try {
+        const res = await fetch('/api/completed');
+        if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data)) {
+                completedItems = new Set(data.map(id => String(id)));
+                localStorage.setItem('bucketCompleted', JSON.stringify([...completedItems]));
+                return;
+            }
+        }
+    } catch (e) {
+        // Offline / fallback to localStorage
+    }
+    completedItems = new Set(
+        (JSON.parse(localStorage.getItem('bucketCompleted') || '[]')).map(id => String(id))
+    );
 }
 
+async function loadHerWishes() {
+    try {
+        const res = await fetch('/api/wishes');
+        if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data)) {
+                herWishes = data;
+                localStorage.setItem('herWishes', JSON.stringify(herWishes));
+                return;
+            }
+        }
+    } catch (e) {
+        // Offline / fallback to localStorage
+    }
+    herWishes = JSON.parse(localStorage.getItem('herWishes') || '[]');
+}
+
+async function syncToggleComplete(id) {
+    try {
+        await fetch('/api/completed', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id })
+        });
+    } catch (e) {
+        // Continue even if network fails
+    }
+}
+
+// ─── Category Helpers ────────────────────────────────────────────
 function getCategoryLabel(cat) {
     const labels = {
         romance: '💕 Romance',
@@ -385,48 +443,185 @@ function getCategoryLabel(cat) {
         spicy: '🔥 Spicy',
         'her-wish': '💭 Her Wish'
     };
-    return labels[cat] || cat;
+    return labels[cat] || '💭 Special Wish';
+}
+
+// ─── Unified Rendering ───────────────────────────────────────────
+function renderAllContent(filter = 'all') {
+    bucketGrid.innerHTML = '';
+
+    // 1. Render Main Bucket List
+    if (filter === 'her-wish') {
+        bucketGrid.style.display = 'none';
+    } else {
+        bucketGrid.style.display = 'grid';
+        const items = filter === 'all'
+            ? bucketListItems
+            : bucketListItems.filter(item => item.category === filter);
+
+        items.forEach((item, index) => {
+            const strId = String(item.id);
+            const isDone = completedItems.has(strId);
+            const card = document.createElement('div');
+            card.className = `bucket-card ${isDone ? 'completed' : ''}`;
+            card.style.setProperty('--card-accent', item.accent);
+            card.style.animationDelay = `${index * 0.04}s`;
+            card.dataset.id = strId;
+
+            card.innerHTML = `
+                <div class="card-number">${String(item.id).padStart(2, '0')}</div>
+                <span class="card-emoji">${item.emoji}</span>
+                <span class="card-tag ${item.category}">${getCategoryLabel(item.category)}</span>
+                <h3 class="card-title">${item.title}</h3>
+                <p class="card-description">${item.description}</p>
+                <div class="card-checkbox">
+                    <div class="checkbox-custom">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 6L9 17l-5-5"/>
+                        </svg>
+                    </div>
+                    <span class="checkbox-label">${isDone ? 'We did this! 🎉' : 'Mark as done'}</span>
+                </div>
+            `;
+
+            card.addEventListener('click', () => toggleComplete(item.id, card));
+            bucketGrid.appendChild(card);
+        });
+    }
+
+    // 2. Render Her Wishes
+    renderHerWishes(filter);
+
+    // 3. Update Progress Counters
+    updateProgress();
+}
+
+function renderHerWishes(filter = currentFilter) {
+    herWishesGrid.innerHTML = '';
+
+    // Decide which wishes to show
+    let visibleWishes = herWishes;
+    if (filter !== 'all' && filter !== 'her-wish') {
+        // If viewing e.g. "romance", show custom wishes that also have category "romance"
+        visibleWishes = herWishes.filter(w => w.category === filter);
+        if (visibleWishes.length === 0) {
+            herWishesSection.style.display = 'none';
+            return;
+        }
+    }
+
+    herWishesSection.style.display = 'block';
+
+    if (visibleWishes.length === 0) {
+        wishesEmpty.style.display = 'block';
+        return;
+    }
+
+    wishesEmpty.style.display = 'none';
+
+    visibleWishes.forEach((wish, index) => {
+        const strId = String(wish.id);
+        const isDone = completedItems.has(strId);
+        const card = document.createElement('div');
+        card.className = `bucket-card ${isDone ? 'completed' : ''}`;
+        card.style.setProperty('--card-accent', wish.accent || '#c8b6ff');
+        card.style.animationDelay = `${index * 0.04}s`;
+        card.dataset.id = strId;
+
+        card.innerHTML = `
+            <button class="card-delete" title="Delete wish">✕</button>
+            <div class="card-number">💭</div>
+            <span class="card-emoji">${wish.emoji}</span>
+            <span class="card-tag ${wish.category || 'her-wish'}">${getCategoryLabel(wish.category || 'her-wish')}</span>
+            <h3 class="card-title">${wish.title}</h3>
+            <p class="card-description">${wish.description}</p>
+            <div class="card-checkbox">
+                <div class="checkbox-custom">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 6L9 17l-5-5"/>
+                    </svg>
+                </div>
+                <span class="checkbox-label">${isDone ? 'We did this! 🎉' : 'Mark as done'}</span>
+            </div>
+        `;
+
+        // Delete button listener
+        const deleteBtn = card.querySelector('.card-delete');
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteWish(wish.id);
+        });
+
+        // Toggle complete listener
+        card.addEventListener('click', () => toggleComplete(wish.id, card));
+        herWishesGrid.appendChild(card);
+    });
 }
 
 // ─── Toggle Complete ─────────────────────────────────────────────
 function toggleComplete(id, card) {
-    if (completedItems.has(id)) {
-        completedItems.delete(id);
+    const strId = String(id);
+
+    if (completedItems.has(strId)) {
+        completedItems.delete(strId);
         card.classList.remove('completed');
         card.querySelector('.checkbox-label').textContent = 'Mark as done';
     } else {
-        completedItems.add(id);
+        completedItems.add(strId);
         card.classList.add('completed');
         card.querySelector('.checkbox-label').textContent = 'We did this! 🎉';
-        
-        // Mini confetti burst
-        launchConfetti(15);
-        
-        // Check for milestones
+
+        launchConfetti(18);
         checkMilestones();
     }
-    
-    // Save state
+
+    // Save locally
     localStorage.setItem('bucketCompleted', JSON.stringify([...completedItems]));
+
+    // Sync with backend
+    syncToggleComplete(id);
+
+    // Update progress
     updateProgress();
 }
 
-// ─── Update Progress ─────────────────────────────────────────────
+// ─── Progress Tracking (Single Source of Truth) ──────────────────
 function updateProgress() {
-    const total = bucketListItems.length;
-    const completed = completedItems.size;
-    const percent = (completed / total) * 100;
-    
-    progressFill.style.width = percent + '%';
-    completedCount.textContent = completed;
+    const total = bucketListItems.length + herWishes.length;
+
+    // Build set of currently existing items to prevent ghost counts
+    const existingIds = new Set([
+        ...bucketListItems.map(i => String(i.id)),
+        ...herWishes.map(w => String(w.id))
+    ]);
+
+    let validCompleted = 0;
+    completedItems.forEach(id => {
+        if (existingIds.has(String(id))) {
+            validCompleted++;
+        }
+    });
+
+    const percent = total > 0 ? (validCompleted / total) * 100 : 0;
+
+    progressFill.style.width = Math.min(percent, 100) + '%';
+    completedCount.textContent = validCompleted;
     totalCount.textContent = total;
 }
 
-// ─── Milestones ──────────────────────────────────────────────────
+// ─── Milestones Celebration ──────────────────────────────────────
 function checkMilestones() {
-    const count = completedItems.size;
-    const total = bucketListItems.length;
-    
+    const total = bucketListItems.length + herWishes.length;
+    const existingIds = new Set([
+        ...bucketListItems.map(i => String(i.id)),
+        ...herWishes.map(w => String(w.id))
+    ]);
+
+    let count = 0;
+    completedItems.forEach(id => {
+        if (existingIds.has(String(id))) count++;
+    });
+
     if (count === 5) {
         showCelebration('🎊', 'Amazing Start!', "We've completed 5 adventures together! Here's to many more...");
         launchConfetti(60);
@@ -436,8 +631,8 @@ function checkMilestones() {
     } else if (count === 20) {
         showCelebration('🔥', 'Almost There!', "20 down — only the spiciest ones left... 😏");
         launchConfetti(100);
-    } else if (count === total) {
-        showCelebration('👑', 'We Are Legends!', "Every. Single. One. We\'re officially the most adventurous couple alive! 💕🔥");
+    } else if (total > 0 && count === total) {
+        showCelebration('👑', 'We Are Legends!', "Every. Single. One. We're officially the most adventurous couple alive! 💕🔥");
         launchConfetti(250);
     }
 }
@@ -453,30 +648,166 @@ function showCelebration(emoji, title, text) {
             <button class="celebration-close" id="closeCelebration">Keep Going! 💕</button>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
-    
-    modal.querySelector('#closeCelebration').addEventListener('click', () => {
+
+    const closeBtn = modal.querySelector('#closeCelebration');
+    closeBtn.addEventListener('click', () => {
         modal.style.opacity = '0';
-        setTimeout(() => modal.remove(), 500);
+        setTimeout(() => modal.remove(), 400);
     });
-    
+
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
             modal.style.opacity = '0';
-            setTimeout(() => modal.remove(), 500);
+            setTimeout(() => modal.remove(), 400);
         }
     });
 }
 
-// ─── Filter Buttons ──────────────────────────────────────────────
+// ─── Filter Buttons (Single Event Listener) ──────────────────────
 filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         filterBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentFilter = btn.dataset.filter;
-        renderBucketList(currentFilter);
+        renderAllContent(currentFilter);
     });
+});
+
+// ─── Wish CRUD Operations ────────────────────────────────────────
+async function saveWish(wish) {
+    try {
+        const res = await fetch('/api/wishes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(wish)
+        });
+        if (res.ok) {
+            const saved = await res.json();
+            herWishes.push(saved);
+            localStorage.setItem('herWishes', JSON.stringify(herWishes));
+            return saved;
+        }
+    } catch (err) {
+        // Fallback: save locally
+    }
+
+    const localWish = {
+        ...wish,
+        id: 'wish-' + Date.now(),
+        accent: '#c8b6ff',
+        addedBy: 'her',
+        createdAt: new Date().toISOString()
+    };
+    herWishes.push(localWish);
+    localStorage.setItem('herWishes', JSON.stringify(herWishes));
+    return localWish;
+}
+
+async function deleteWish(id) {
+    const strId = String(id);
+
+    try {
+        await fetch(`/api/wishes/${id}`, { method: 'DELETE' });
+    } catch (err) {
+        // Continue even if network fails
+    }
+
+    // Clean up from wishes
+    herWishes = herWishes.filter(w => String(w.id) !== strId);
+    localStorage.setItem('herWishes', JSON.stringify(herWishes));
+
+    // Also clean up completedItems so completed counter does not get corrupted!
+    if (completedItems.has(strId)) {
+        completedItems.delete(strId);
+        localStorage.setItem('bucketCompleted', JSON.stringify([...completedItems]));
+    }
+
+    renderAllContent(currentFilter);
+    updateProgress();
+}
+
+// ─── Modal Controls & Accessibility ──────────────────────────────
+fabAdd.addEventListener('click', () => {
+    wishModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    wishTitle.focus();
+});
+
+function closeModal() {
+    wishModal.style.opacity = '0';
+    setTimeout(() => {
+        wishModal.classList.add('hidden');
+        wishModal.style.opacity = '';
+        document.body.style.overflow = '';
+        wishForm.reset();
+        charCount.textContent = '0';
+        // Reset emoji picker
+        document.querySelectorAll('.emoji-option').forEach(e => e.classList.remove('active'));
+        const defaultEmoji = document.querySelector('.emoji-option[data-emoji="💭"]');
+        if (defaultEmoji) defaultEmoji.classList.add('active');
+        selectedEmoji = '💭';
+    }, 300);
+}
+
+modalClose.addEventListener('click', closeModal);
+
+wishModal.addEventListener('click', (e) => {
+    if (e.target === wishModal) closeModal();
+});
+
+// Close modal on Escape key
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !wishModal.classList.contains('hidden')) {
+        closeModal();
+    }
+});
+
+// Emoji Picker
+emojiPicker.addEventListener('click', (e) => {
+    const btn = e.target.closest('.emoji-option');
+    if (!btn) return;
+
+    document.querySelectorAll('.emoji-option').forEach(el => el.classList.remove('active'));
+    btn.classList.add('active');
+    selectedEmoji = btn.dataset.emoji;
+});
+
+// Character Counter
+wishDescription.addEventListener('input', () => {
+    charCount.textContent = wishDescription.value.length;
+});
+
+// Form Submit
+wishForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const title = wishTitle.value.trim();
+    const description = wishDescription.value.trim();
+    const category = wishCategory ? wishCategory.value : 'her-wish';
+
+    if (!title || !description) return;
+
+    const wish = {
+        emoji: selectedEmoji,
+        title,
+        description,
+        category: category || 'her-wish'
+    };
+
+    await saveWish(wish);
+
+    // If current filter is active and doesn't match the new wish, switch to 'all' or 'her-wish' so it's visible!
+    if (currentFilter !== 'all' && currentFilter !== 'her-wish' && currentFilter !== category) {
+        currentFilter = 'all';
+        filterBtns.forEach(b => b.classList.toggle('active', b.dataset.filter === 'all'));
+    }
+
+    renderAllContent(currentFilter);
+    updateProgress();
+    launchConfetti(45);
+    closeModal();
 });
 
 // ─── Confetti System ─────────────────────────────────────────────
@@ -494,7 +825,7 @@ resizeCanvas();
 
 function launchConfetti(count = 30) {
     const colors = ['#e8567f', '#f7a8c4', '#ffd166', '#c8b6ff', '#9381ff', '#ffb4a2', '#ff6b6b'];
-    
+
     for (let i = 0; i < count; i++) {
         confettiParticles.push({
             x: Math.random() * confettiCanvas.width,
@@ -510,7 +841,7 @@ function launchConfetti(count = 30) {
             decay: 0.003 + Math.random() * 0.005
         });
     }
-    
+
     if (!confettiAnimating) {
         confettiAnimating = true;
         animateConfetti();
@@ -519,16 +850,16 @@ function launchConfetti(count = 30) {
 
 function animateConfetti() {
     ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-    
+
     confettiParticles = confettiParticles.filter(p => {
         p.x += p.vx;
         p.y += p.vy;
         p.vy += 0.08; // gravity
         p.rotation += p.rotationSpeed;
         p.opacity -= p.decay;
-        
+
         if (p.opacity <= 0) return false;
-        
+
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate((p.rotation * Math.PI) / 180);
@@ -536,10 +867,10 @@ function animateConfetti() {
         ctx.fillStyle = p.color;
         ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
         ctx.restore();
-        
+
         return p.y < confettiCanvas.height + 50;
     });
-    
+
     if (confettiParticles.length > 0) {
         requestAnimationFrame(animateConfetti);
     } else {
@@ -551,251 +882,7 @@ function animateConfetti() {
 // ─── Initialize ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     createFloatingHearts();
+    // Preload completed and wishes in background for snappy response
+    loadCompletedItems();
+    loadHerWishes();
 });
-
-// ═══════════════════════════════════════════════════════════════
-// HER WISHES — Modal, API, Rendering
-// ═══════════════════════════════════════════════════════════════
-
-// ─── Load Wishes from DB ─────────────────────────────────────────
-async function loadHerWishes() {
-    try {
-        const res = await fetch('/api/wishes');
-        herWishes = await res.json();
-        renderHerWishes();
-    } catch (err) {
-        // Fallback to localStorage if server not available
-        herWishes = JSON.parse(localStorage.getItem('herWishes') || '[]');
-        renderHerWishes();
-    }
-}
-
-// ─── Save Wish to DB ─────────────────────────────────────────────
-async function saveWish(wish) {
-    try {
-        const res = await fetch('/api/wishes', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(wish)
-        });
-        const saved = await res.json();
-        herWishes.push(saved);
-        // Also save to localStorage as backup
-        localStorage.setItem('herWishes', JSON.stringify(herWishes));
-        return saved;
-    } catch (err) {
-        // Fallback: save locally
-        const localWish = { ...wish, id: 'wish-' + Date.now() };
-        herWishes.push(localWish);
-        localStorage.setItem('herWishes', JSON.stringify(herWishes));
-        return localWish;
-    }
-}
-
-// ─── Delete Wish from DB ─────────────────────────────────────────
-async function deleteWish(id) {
-    try {
-        await fetch(`/api/wishes/${id}`, { method: 'DELETE' });
-    } catch (err) {
-        // Continue even if API fails
-    }
-    herWishes = herWishes.filter(w => w.id !== id);
-    localStorage.setItem('herWishes', JSON.stringify(herWishes));
-    renderHerWishes();
-    updateProgress();
-}
-
-// ─── Render Her Wishes ───────────────────────────────────────────
-function renderHerWishes() {
-    herWishesGrid.innerHTML = '';
-
-    if (herWishes.length === 0) {
-        wishesEmpty.style.display = 'block';
-        return;
-    }
-
-    wishesEmpty.style.display = 'none';
-
-    herWishes.forEach((wish, index) => {
-        const card = document.createElement('div');
-        card.className = `bucket-card just-added ${completedItems.has(wish.id) ? 'completed' : ''}`;
-        card.style.setProperty('--card-accent', '#c8b6ff');
-        card.style.animationDelay = `${index * 0.05}s`;
-        card.dataset.id = wish.id;
-
-        card.innerHTML = `
-            <button class="card-delete" onclick="event.stopPropagation(); deleteWish('${wish.id}')" title="Delete wish">✕</button>
-            <div class="card-number">💭</div>
-            <span class="card-emoji">${wish.emoji}</span>
-            <span class="card-tag her-wish">💭 Her Wish</span>
-            <h3 class="card-title">${wish.title}</h3>
-            <p class="card-description">${wish.description}</p>
-            <div class="card-checkbox">
-                <div class="checkbox-custom">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20 6L9 17l-5-5"/>
-                    </svg>
-                </div>
-                <span class="checkbox-label">${completedItems.has(wish.id) ? 'We did this! 🎉' : 'Mark as done'}</span>
-            </div>
-        `;
-
-        card.addEventListener('click', () => toggleComplete(wish.id, card));
-        herWishesGrid.appendChild(card);
-    });
-}
-
-// ─── Modal Controls ──────────────────────────────────────────────
-fabAdd.addEventListener('click', () => {
-    wishModal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-});
-
-function closeModal() {
-    wishModal.style.opacity = '0';
-    setTimeout(() => {
-        wishModal.classList.add('hidden');
-        wishModal.style.opacity = '';
-        document.body.style.overflow = '';
-        wishForm.reset();
-        charCount.textContent = '0';
-        // Reset emoji picker
-        document.querySelectorAll('.emoji-option').forEach(e => e.classList.remove('active'));
-        document.querySelector('.emoji-option[data-emoji="💭"]').classList.add('active');
-        selectedEmoji = '💭';
-    }, 300);
-}
-
-modalClose.addEventListener('click', closeModal);
-
-wishModal.addEventListener('click', (e) => {
-    if (e.target === wishModal) closeModal();
-});
-
-// ─── Emoji Picker ────────────────────────────────────────────────
-emojiPicker.addEventListener('click', (e) => {
-    const btn = e.target.closest('.emoji-option');
-    if (!btn) return;
-
-    document.querySelectorAll('.emoji-option').forEach(el => el.classList.remove('active'));
-    btn.classList.add('active');
-    selectedEmoji = btn.dataset.emoji;
-});
-
-// ─── Character Counter ───────────────────────────────────────────
-wishDescription.addEventListener('input', () => {
-    charCount.textContent = wishDescription.value.length;
-});
-
-// ─── Form Submit ─────────────────────────────────────────────────
-wishForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const title = wishTitle.value.trim();
-    const description = wishDescription.value.trim();
-
-    if (!title || !description) return;
-
-    const wish = {
-        emoji: selectedEmoji,
-        title,
-        description,
-        category: 'her-wish'
-    };
-
-    await saveWish(wish);
-    renderHerWishes();
-    updateProgress();
-    launchConfetti(40);
-    closeModal();
-});
-
-// ─── Update renderBucketList to include her wishes when filtering ──
-const originalRenderBucketList = renderBucketList;
-// We override the filter logic to also handle her-wish filter
-function renderAllContent(filter) {
-    // Render the main bucket list
-    bucketGrid.innerHTML = '';
-    const herWishesSection = document.getElementById('herWishesSection');
-
-    if (filter === 'her-wish') {
-        // Show only her wishes
-        herWishesSection.style.display = 'block';
-        bucketGrid.style.display = 'none';
-        renderHerWishes();
-    } else {
-        // Show bucket list + her wishes
-        bucketGrid.style.display = 'grid';
-        herWishesSection.style.display = 'block';
-
-        const items = filter === 'all'
-            ? bucketListItems
-            : bucketListItems.filter(item => item.category === filter);
-
-        items.forEach((item, index) => {
-            const card = document.createElement('div');
-            card.className = `bucket-card ${completedItems.has(item.id) ? 'completed' : ''}`;
-            card.style.setProperty('--card-accent', item.accent);
-            card.style.animationDelay = `${index * 0.05}s`;
-            card.dataset.id = item.id;
-
-            card.innerHTML = `
-                <div class="card-number">${String(item.id).padStart(2, '0')}</div>
-                <span class="card-emoji">${item.emoji}</span>
-                <span class="card-tag ${item.category}">${getCategoryLabel(item.category)}</span>
-                <h3 class="card-title">${item.title}</h3>
-                <p class="card-description">${item.description}</p>
-                <div class="card-checkbox">
-                    <div class="checkbox-custom">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20 6L9 17l-5-5"/>
-                        </svg>
-                    </div>
-                    <span class="checkbox-label">${completedItems.has(item.id) ? 'We did this! 🎉' : 'Mark as done'}</span>
-                </div>
-            `;
-
-            card.addEventListener('click', () => toggleComplete(item.id, card));
-            bucketGrid.appendChild(card);
-        });
-
-        // Also render her wishes if filter is 'all'
-        if (filter === 'all') {
-            renderHerWishes();
-        } else {
-            herWishesSection.style.display = 'none';
-        }
-    }
-
-    totalCount.textContent = bucketListItems.length + herWishes.length;
-}
-
-// Override filter button handlers
-filterBtns.forEach(btn => {
-    btn.removeEventListener('click', btn._handler);
-    btn.addEventListener('click', () => {
-        filterBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentFilter = btn.dataset.filter;
-        renderAllContent(currentFilter);
-        updateProgress();
-    });
-});
-
-// Override the explore button to also load wishes
-const origExploreHandler = exploreBtn.onclick;
-exploreBtn.addEventListener('click', () => {
-    setTimeout(() => loadHerWishes(), 900);
-});
-
-// Update progress to include her wishes
-const origUpdateProgress = updateProgress;
-function updateProgressAll() {
-    const total = bucketListItems.length + herWishes.length;
-    const completed = completedItems.size;
-    const percent = total > 0 ? (completed / total) * 100 : 0;
-
-    progressFill.style.width = percent + '%';
-    completedCount.textContent = completed;
-    totalCount.textContent = total;
-}

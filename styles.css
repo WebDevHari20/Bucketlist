@@ -285,6 +285,21 @@ body {
 .typewriter-container {
     display: inline-block;
     margin-bottom: var(--space-2xl);
+    cursor: pointer;
+}
+
+.skip-hint {
+    display: block;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.35);
+    margin-top: var(--space-sm);
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.skip-hint:hover {
+    color: var(--rose-light);
 }
 
 .question-text {
@@ -456,6 +471,30 @@ body {
 .header-content {
     max-width: 700px;
     margin: 0 auto;
+}
+
+.intro-reopen-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: var(--space-md);
+    padding: 6px 18px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50px;
+    color: var(--rose-light);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.intro-reopen-btn:hover {
+    background: rgba(232, 86, 127, 0.2);
+    border-color: var(--rose);
+    transform: translateY(-2px);
+    color: #fff;
 }
 
 .bucket-title {
@@ -1269,7 +1308,8 @@ body {
 }
 
 .form-group input,
-.form-group textarea {
+.form-group textarea,
+.form-group select {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
@@ -1282,13 +1322,20 @@ body {
     resize: none;
 }
 
+.form-group select option {
+    background: var(--dark-purple);
+    color: var(--soft-white);
+    padding: 8px;
+}
+
 .form-group input::placeholder,
 .form-group textarea::placeholder {
     color: rgba(255, 255, 255, 0.2);
 }
 
 .form-group input:focus,
-.form-group textarea:focus {
+.form-group textarea:focus,
+.form-group select:focus {
     border-color: var(--rose);
     box-shadow: 0 0 20px rgba(232, 86, 127, 0.15);
     background: rgba(255, 255, 255, 0.08);
