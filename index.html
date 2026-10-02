@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Bucket List 💕</title>
+    <meta name="description" content="A romantic bucket list created for the love of my life. Let's make every moment count together.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=6">
+</head>
+<body>
+    <!-- Floating Hearts Background -->
+    <div class="hearts-bg" id="heartsBg"></div>
+
+    <!-- Envelope Intro -->
+    <section class="intro-section" id="introSection">
+        <div class="envelope-container" id="envelope">
+            <div class="envelope-flap"></div>
+            <div class="envelope-body">
+                <div class="letter" id="letter">
+                    <span class="letter-emoji">💌</span>
+                    <p class="letter-text">You have a message...</p>
+                    <p class="letter-subtext">Click to open</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Question Section -->
+    <section class="question-section hidden" id="questionSection">
+        <div class="sparkle-overlay"></div>
+        <div class="question-content">
+            <div class="typewriter-container">
+                <h1 class="question-text" id="questionText"></h1>
+                <span class="cursor" id="cursor">|</span>
+            </div>
+            <div class="answer-reveal hidden" id="answerReveal">
+                <div class="divider-heart">
+                    <span class="line"></span>
+                    <span class="heart-icon">♥</span>
+                    <span class="line"></span>
+                </div>
+                <p class="answer-text">Don't worry baby...</p>
+                <p class="answer-text-2">I've created a <span class="highlight">Bucket List</span> for us! ✨</p>
+                <p class="answer-sub">Every dream, every wish, every adventure — together 💕</p>
+                <button class="explore-btn" id="exploreBtn">
+                    <span>Let's Explore Our Adventures</span>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Bucket List Section -->
+    <main class="bucket-section hidden" id="bucketSection">
+        <!-- Progress Header -->
+        <header class="bucket-header">
+            <div class="header-content">
+                <h2 class="bucket-title">
+                    <span class="title-icon">📋</span>
+                    Our Love Bucket List
+                </h2>
+                <p class="bucket-subtitle">Adventures we'll conquer together, one date at a time</p>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <p class="progress-text"><span id="completedCount">0</span> / <span id="totalCount">0</span> Adventures Completed</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Category Filters -->
+        <div class="filter-bar">
+            <button class="filter-btn active" data-filter="all">
+                <span class="filter-icon">✨</span> All
+            </button>
+            <button class="filter-btn" data-filter="romance">
+                <span class="filter-icon">💕</span> Romance
+            </button>
+            <button class="filter-btn" data-filter="adventure">
+                <span class="filter-icon">🌍</span> Adventure
+            </button>
+            <button class="filter-btn" data-filter="chill">
+                <span class="filter-icon">🍿</span> Chill
+            </button>
+            <button class="filter-btn" data-filter="food">
+                <span class="filter-icon">🍽️</span> Foodie
+            </button>
+            <button class="filter-btn" data-filter="spicy">
+                <span class="filter-icon">🔥</span> Spicy
+            </button>
+            <button class="filter-btn" data-filter="her-wish">
+                <span class="filter-icon">💭</span> Her Wishes
+            </button>
+        </div>
+
+        <!-- Bucket List Grid -->
+        <div class="bucket-grid" id="bucketGrid"></div>
+
+        <!-- Her Wishes Section -->
+        <section class="her-wishes-section" id="herWishesSection">
+            <div class="wishes-header">
+                <div class="divider-heart">
+                    <span class="line"></span>
+                    <span class="heart-icon">💭</span>
+                    <span class="line"></span>
+                </div>
+                <h2 class="wishes-title">Your Wishes, My Love</h2>
+                <p class="wishes-subtitle">What's on your mind? Add your dream dates and secret wishes here — I'll make them happen ✨</p>
+            </div>
+            <div class="bucket-grid" id="herWishesGrid"></div>
+            <div class="wishes-empty" id="wishesEmpty">
+                <span class="empty-emoji">💭</span>
+                <p class="empty-title">No wishes yet...</p>
+                <p class="empty-text">Tap the ✚ button to add your first dream date idea!</p>
+            </div>
+        </section>
+
+        <!-- Floating Add Button -->
+        <button class="fab-add" id="fabAdd" title="Add a wish">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <path d="M12 5v14M5 12h14"/>
+            </svg>
+        </button>
+
+        <!-- Love Note Footer -->
+        <footer class="love-footer">
+            <div class="footer-content">
+                <div class="infinity-symbol">∞</div>
+                <p class="footer-text">This is just the beginning of our forever...</p>
+                <p class="footer-sub">Made with all my love, for you 💗</p>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Add Wish Modal -->
+    <div class="modal-overlay hidden" id="wishModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">✕</button>
+            <div class="modal-header">
+                <span class="modal-emoji">💭</span>
+                <h3 class="modal-title">Add Your Wish</h3>
+                <p class="modal-subtitle">Tell me your dream date idea, baby</p>
+            </div>
+            <form id="wishForm" class="wish-form">
+                <div class="form-group">
+                    <label for="wishEmoji">Pick an Emoji</label>
+                    <div class="emoji-picker" id="emojiPicker">
+                        <button type="button" class="emoji-option active" data-emoji="💭">💭</button>
+                        <button type="button" class="emoji-option" data-emoji="💋">💋</button>
+                        <button type="button" class="emoji-option" data-emoji="🌙">🌙</button>
+                        <button type="button" class="emoji-option" data-emoji="🦋">🦋</button>
+                        <button type="button" class="emoji-option" data-emoji="🌹">🌹</button>
+                        <button type="button" class="emoji-option" data-emoji="🎀">🎀</button>
+                        <button type="button" class="emoji-option" data-emoji="🍷">🍷</button>
+                        <button type="button" class="emoji-option" data-emoji="🏝️">🏝️</button>
+                        <button type="button" class="emoji-option" data-emoji="🎭">🎭</button>
+                        <button type="button" class="emoji-option" data-emoji="🛁">🛁</button>
+                        <button type="button" class="emoji-option" data-emoji="🔮">🔮</button>
+                        <button type="button" class="emoji-option" data-emoji="✨">✨</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="wishTitle">What's the idea?</label>
+                    <input type="text" id="wishTitle" placeholder="e.g., Midnight rooftop picnic" required maxlength="60">
+                </div>
+                <div class="form-group">
+                    <label for="wishDescription">Tell me more...</label>
+                    <textarea id="wishDescription" placeholder="Describe your dream date in detail... make me excited about it 😏" required maxlength="300" rows="4"></textarea>
+                    <span class="char-count"><span id="charCount">0</span>/300</span>
+                </div>
+                <button type="submit" class="submit-wish-btn" id="submitWish">
+                    <span>Add My Wish 💕</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confetti Canvas -->
+    <canvas id="confettiCanvas"></canvas>
+
+    <script src="script.js?v=6"></script>
+</body>
+</html>
