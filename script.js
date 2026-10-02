@@ -675,6 +675,7 @@ function showCelebration(emoji, title, text) {
 // ─── Filter Buttons (Single Event Listener) ──────────────────────
 filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
+        if (btn.classList.contains('add-wish-trigger-btn')) return;
         filterBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentFilter = btn.dataset.filter;
@@ -736,11 +737,29 @@ async function deleteWish(id) {
 }
 
 // ─── Modal Controls & Accessibility ──────────────────────────────
-fabAdd.addEventListener('click', () => {
+function openWishModal() {
     wishModal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
     wishTitle.focus();
-});
+}
+
+if (fabAdd) fabAdd.addEventListener('click', openWishModal);
+
+const filterAddWishBtn = document.getElementById('filterAddWishBtn');
+if (filterAddWishBtn) {
+    filterAddWishBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openWishModal();
+    });
+}
+
+const emptyAddBtn = document.getElementById('emptyAddBtn');
+if (emptyAddBtn) {
+    emptyAddBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openWishModal();
+    });
+}
 
 function closeModal() {
     wishModal.style.opacity = '0';

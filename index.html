@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=6">
+    <link rel="stylesheet" href="styles.css?v=20261002">
 </head>
 <body>
     <!-- Floating Hearts Background -->
@@ -99,6 +99,9 @@
             <button class="filter-btn" data-filter="her-wish">
                 <span class="filter-icon">💭</span> Her Wishes
             </button>
+            <button class="filter-btn add-wish-trigger-btn" id="filterAddWishBtn" type="button" title="Add your dream wish">
+                <span class="filter-icon">✚</span> Add Wish 💕
+            </button>
         </div>
 
         <!-- Bucket List Grid -->
@@ -119,7 +122,8 @@
             <div class="wishes-empty" id="wishesEmpty">
                 <span class="empty-emoji">💭</span>
                 <p class="empty-title">No wishes yet...</p>
-                <p class="empty-text">Tap the ✚ button to add your first dream date idea!</p>
+                <p class="empty-text">Tap the button to add your first dream date idea!</p>
+                <button class="empty-add-btn" id="emptyAddBtn" type="button">✚ Add Your First Wish 💕</button>
             </div>
         </section>
 
@@ -133,11 +137,10 @@
         </footer>
     </main>
 
-    <!-- Floating Add Button (Fixed on screen) -->
-    <button class="fab-add hidden" id="fabAdd" title="Add your dream wish">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14"/>
-        </svg>
+    <!-- Floating Add Button (Strictly Fixed on screen) -->
+    <button class="fab-add hidden" id="fabAdd" title="Add your dream wish" aria-label="Add a wish">
+        <span class="fab-icon">✚</span>
+        <span class="fab-text">Add Wish</span>
     </button>
 
     <!-- Add Wish Modal -->
@@ -197,6 +200,6 @@
     <!-- Confetti Canvas -->
     <canvas id="confettiCanvas"></canvas>
 
-    <script src="script.js?v=6"></script>
+    <script src="script.js?v=20261002"></script>
 </body>
 </html>
